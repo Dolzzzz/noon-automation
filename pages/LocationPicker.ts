@@ -46,6 +46,15 @@ export class LocationPicker extends BasePage {
     return line.split(',').slice(0, 2).map(s => s.trim()).join(', ');
   }
 
+  /** Picks the saved address already shown in the header (or the first one), leaving the location as it was. */
+  async chooseCurrentAddress(current: string) {
+    await expect(this.savedAddressLines.first()).toBeVisible();
+    const lines = await this.savedAddressLines.allInnerTexts();
+    const index = Math.max(0, lines.findIndex(line => current.includes(LocationPicker.addressKey(line))));
+    await this.savedAddressLines.nth(index).click();
+    await this.failIfPhoneVerificationAsked();
+  }
+
   /** Picks the first saved address that is not the current one; returns its key. */
   async chooseDifferentAddress(current: string): Promise<string> {
     await expect(this.savedAddressLines.first()).toBeVisible();

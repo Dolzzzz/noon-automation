@@ -29,6 +29,7 @@ test('04 · checkout up to filling in a new card (no purchase)', async ({ page, 
     await expect(checkoutPage.cardNumber).not.toHaveValue('');
     await expect(checkoutPage.cvv).not.toHaveValue('');
     await expect(checkoutPage.rememberCardCheckbox).not.toBeChecked();
+    await expect(page.getByText('بطاقة منتهية الصلاحية')).toHaveCount(0);
     // The form accepts the card (confirm is enabled), and the test deliberately ends here.
     await expect(checkoutPage.confirmCardButton).toBeEnabled();
     await page.waitForTimeout(3_000);

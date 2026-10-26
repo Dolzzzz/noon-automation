@@ -1,39 +1,30 @@
 import { expect } from '@playwright/test';
 import { BasePage } from './BasePage';
-import { ProductPage } from './ProductPage';
 
 export class WishlistPage extends BasePage {
   async openWishlist() {
     await this.open('/wishlist/');
+    // Cards load after the page shell; the "كل المنتجات (n)" heading arrives with them.
+    await this.page
+      .getByRole('heading', { name: /كل المنتجات/ })
+      .first()
+      .waitFor({ timeout: 15_000 })
+      .catch(() => {});
   }
 
-  /** The wishlist card for a product, matched by the SKU in its link. */
-  item(sku: string) {
-    return this.page.locator(`a[href*="/${sku}/"]`).first();
-  }
-
+  /** The wishlist card for a product. Only the list's own cards count, not the recommendations below. */
   card(sku: string) {
-    return this.page.locator('article').filter({ has: this.page.locator(`a[href*="/${sku}/"]`) });
+    return this.page.locator('main article').filter({ has: this.page.locator(`a[href*="/${sku}/"]`) });
   }
 
-  /**
-   * Removes a product from the wish list using the card's "خيارات المنتج" (⋯) menu.
-   * If that menu has no remove entry, falls back to un-hearting it on its product page.
-   * Returns which way it was removed.
-   */
-  async removeItem(sku: string, productUrl: string): Promise<'wishlist menu' | 'product page heart'> {
-    await this.card(sku).getByRole('button', { name: 'خيارات المنتج' }).click();
-    const removeOption = this.page.getByText(/^(امسح من المفضلة|إزالة|حذف|Remove)/).first();
-    if (await removeOption.waitFor({ state: 'visible', timeout: 5_000 }).then(() => true, () => false)) {
-      await removeOption.click();
-      await expect(this.item(sku)).toBeHidden();
-      return 'wishlist menu';
-    }
+  item(sku: string) {
+    return this.card(sku).locator(`a[href*="/${sku}/"]`).first();
+  }
 
-    await this.page.keyboard.press('Escape');
-    await this.page.goto(productUrl, { waitUntil: 'domcontentloaded' });
-    await this.waitForAppReady();
-    await new ProductPage(this.page).toggleWishlist();
-    return 'product page heart';
+  /** Removes a product through its card's "خيارات المنتج" (⋯) menu → "امسح من المفضلة". */
+  async removeItem(sku: string) {
+    await this.card(sku).getByRole('button', { name: 'خيارات المنتج' }).click();
+    await this.page.getByText('امسح من المفضلة', { exact: true }).click();
+    await expect(this.card(sku)).toHaveCount(0);
   }
 }

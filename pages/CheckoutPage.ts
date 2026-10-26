@@ -26,9 +26,7 @@ export class CheckoutPage extends BasePage {
   async fillCardDetails(card: { number: string; expiryMonth: string; expiryYear: string; cvv: string; holderName: string }) {
     await this.cardNumber.pressSequentially(card.number, { delay: 40 });
     await this.expiryMonth.pressSequentially(card.expiryMonth, { delay: 40 });
-    // The year box takes either "30" or "2030" depending on its max length.
-    const maxLength = Number((await this.expiryYear.getAttribute('maxlength')) ?? 4);
-    await this.expiryYear.pressSequentially(maxLength === 2 ? card.expiryYear.slice(-2) : card.expiryYear, { delay: 40 });
+    await this.expiryYear.pressSequentially(card.expiryYear, { delay: 40 });
     await this.cvv.pressSequentially(card.cvv, { delay: 40 });
     await this.nickname.fill(card.holderName);
     if (await this.rememberCardCheckbox.isChecked()) await this.rememberCard.click();

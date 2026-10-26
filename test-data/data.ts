@@ -2,7 +2,7 @@
 export const dummyCard = {
   number: '4111111111111111',
   expiryMonth: '12',
-  expiryYear: '2030',
+  expiryYear: '30', // noon's year box takes two digits
   cvv: '123',
   holderName: 'Test Automation',
 };

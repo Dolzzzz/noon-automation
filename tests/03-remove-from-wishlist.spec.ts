@@ -7,16 +7,15 @@ test('03 · remove that product from the wish list', async ({ wishlistPage }) =>
 
   await test.step('open the wish list', async () => {
     await wishlistPage.openWishlist();
-    await expect(wishlistPage.item(product!.sku)).toBeVisible();
+    await expect(wishlistPage.item(product!.sku)).toBeVisible({ timeout: 30_000 });
   });
 
-  await test.step('remove the product added in flow 02', async () => {
-    const how = await wishlistPage.removeItem(product!.sku, product!.url);
-    test.info().annotations.push({ type: 'removed via', description: how });
+  await test.step('remove the product added in flow 02 (⋯ → امسح من المفضلة)', async () => {
+    await wishlistPage.removeItem(product!.sku);
   });
 
   await test.step('product is gone after a reload', async () => {
     await wishlistPage.openWishlist();
-    await expect(wishlistPage.item(product!.sku)).toHaveCount(0);
+    await expect(wishlistPage.card(product!.sku)).toHaveCount(0);
   });
 });

@@ -15,7 +15,7 @@ built with **Playwright + TypeScript** using the Page Object Model.
 | 8 | Open a social media link from the site footer | `tests/08-footer-social-link.spec.ts` |
 
 > **No purchase is ever made.** Flow 4 opens *Credit card → إضافة البطاقة*, types the dummy card
-> (`4111 1111 1111 1111`, 12/2030, CVV 123), unticks *تذكر هذه البطاقة* (remember this card), checks
+> (`4111 1111 1111 1111`, 12/30, CVV 123), unticks *تذكر هذه البطاقة* (remember this card), checks
 > that the form's **تأكيد** button became enabled, and stops. It never clicks **تأكيد**, never
 > saves the card, never confirms payment, and never places an order.
 

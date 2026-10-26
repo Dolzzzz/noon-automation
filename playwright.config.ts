@@ -24,7 +24,8 @@ export default defineConfig({
     navigationTimeout: 60_000,
     launchOptions: { slowMo: Number(process.env.SLOW_MO ?? 250) },
     screenshot: 'only-on-failure',
-    video: process.env.VIDEO === 'off' ? 'off' : 'on',
+    // The demo video is a screen recording; per-test videos are opt-in (needs `npx playwright install ffmpeg`).
+    video: process.env.VIDEO === 'on' ? 'on' : 'off',
     // Traces record every typed value, including the password, so they stay off.
     trace: 'off',
   },

@@ -30,7 +30,7 @@ built with **Playwright + TypeScript** using the Page Object Model.
 git clone <this-repo-url>
 cd noon-automation
 npm install
-npx playwright install chrome ffmpeg
+npx playwright install chrome
 ```
 
 Create your `.env` from the template and fill in the test account:
@@ -59,7 +59,7 @@ npx playwright test tests/07-arabic-search.spec.ts   # a single flow (sign-in ru
 |----------|---------|---------|
 | `HEADLESS` | `false` | noon is much more reliable headed; keep it `false` |
 | `SLOW_MO` | `250` | delay (ms) between actions |
-| `VIDEO` | `on` | Playwright's per-test `.webm` videos in `test-results/` |
+| `VIDEO` | `off` | `on` also saves per-test `.webm` videos in `test-results/` (run `npx playwright install ffmpeg` first) |
 
 ## How it is built
 
@@ -71,7 +71,7 @@ tests/                    one spec per flow, numbered in the task's order
 test-data/data.ts         dummy card, Arabic search term, social network, profile values
 utils/env.ts              reads credentials from .env
 utils/shared-state.ts     passes the wish-listed product from flow 2 to flow 3
-playwright.config.ts      Chrome, ar-EG locale, Cairo timezone, 1 worker, video on, trace off
+playwright.config.ts      Chrome, ar-EG locale, Cairo timezone, 1 worker, trace off
 ```
 
 - **Sign-in runs once.** Flow 1 is a Playwright *setup project*. It signs in, saves the session

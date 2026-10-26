@@ -32,7 +32,7 @@ built with **Playwright + TypeScript** using the Page Object Model.
 ## Setup
 
 ```bash
-git clone <this-repo-url>
+git clone https://github.com/Dolzzzz/noon-automation.git
 cd noon-automation
 npm install
 npx playwright install chrome

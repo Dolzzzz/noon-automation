@@ -1,0 +1,23 @@
+{
+  "name": "noon-automation",
+  "version": "1.0.0",
+  "description": "Playwright + TypeScript end-to-end flows for noon Egypt (Arabic)",
+  "scripts": {
+    "test": "playwright test",
+    "test:demo": "cross-env SLOW_MO=600 playwright test",
+    "report": "playwright show-report",
+    "typecheck": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^26.6.5",
+    "cross-env": "^7.0.3",
+    "dotenv": "^18.0.9",
+    "typescript": "^7.0.2"
+  },
+  "private": true
+}

@@ -3,7 +3,7 @@ import { BasePage } from '../pages/BasePage';
 import { productSearchTerm } from '../test-data/data';
 import { setShared } from '../utils/shared-state';
 
-test('02 · add a product to the wish list', async ({ searchResults, productPage, wishlistPage }) => {
+test('02 · add a product to the wish list', async ({ page, searchResults, productPage, wishlistPage }) => {
   let product!: { sku: string; name: string; url: string };
 
   await test.step('open a product from search results', async () => {
@@ -13,11 +13,19 @@ test('02 · add a product to the wish list', async ({ searchResults, productPage
   });
 
   await test.step('click the wish list heart', async () => {
-    await productPage.addToWishlist();
+    await productPage.toggleWishlist();
   });
 
   await test.step('product appears in the wish list', async () => {
     await wishlistPage.openWishlist();
+    if ((await wishlistPage.item(product.sku).count()) === 0) {
+      // The heart is a toggle: if a previous run left this product wish-listed, the click above
+      // removed it. Add it back so the flow ends with the product in the list.
+      await page.goto(product.url, { waitUntil: 'domcontentloaded' });
+      await productPage.waitForAppReady();
+      await productPage.toggleWishlist();
+      await wishlistPage.openWishlist();
+    }
     await expect(wishlistPage.item(product.sku)).toBeVisible();
   });
 

@@ -12,6 +12,18 @@ export abstract class BasePage {
   async open(path = '/') {
     await this.page.goto(`${LOCALE_PATH}${path}`, { waitUntil: 'domcontentloaded' });
     await this.waitForAppReady();
+    await this.ensureArabic();
+  }
+
+  /** noon can bounce to /egypt-en/ (e.g. a stray click on the header language toggle); switch back. */
+  async ensureArabic() {
+    if (!this.page.url().includes('/egypt-en/')) return;
+    const toArabic = this.page.getByRole('banner').getByRole('button', { name: /العربية/ });
+    await expect(async () => {
+      await toArabic.click();
+      await this.page.waitForURL(/\/egypt-ar\//, { timeout: 5_000 });
+    }).toPass({ timeout: 60_000 });
+    await this.waitForAppReady();
   }
 
   /** noon renders its header server-side and hydrates it later; wait for the search box at least. */

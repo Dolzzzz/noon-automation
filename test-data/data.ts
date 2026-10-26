@@ -2,7 +2,7 @@
 export const dummyCard = {
   number: '4111111111111111',
   expiryMonth: '12',
-  expiryYear: '30',
+  expiryYear: '2030',
   cvv: '123',
   holderName: 'Test Automation',
 };
@@ -16,8 +16,14 @@ export const productSearchTerm = 'سماعات';
 // Footer social network opened by flow 08.
 export const socialNetwork = { linkName: 'footer_fb_color', expectedHost: /facebook\.com/ };
 
-// Unique per run so the profile update is visibly different every time.
-export function uniqueProfileName() {
-  const stamp = new Date().toISOString().slice(5, 16).replace(/[-T:]/g, '');
-  return { firstName: 'Tester', lastName: `QA${stamp}` };
+// noon rejects digits in names, so the profile flow rotates through letters-only names
+// and picks one that differs from what is saved, keeping each update a real change.
+const PROFILE_NAMES = [
+  { firstName: 'Adel', lastName: 'Attiah' },
+  { firstName: 'Omar', lastName: 'Hassan' },
+  { firstName: 'Karim', lastName: 'Mostafa' },
+];
+
+export function nextProfileName(currentFirstName: string) {
+  return PROFILE_NAMES.find(n => n.firstName !== currentFirstName.trim()) ?? PROFILE_NAMES[0];
 }

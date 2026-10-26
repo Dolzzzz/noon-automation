@@ -11,9 +11,21 @@ export class ProductPage extends BasePage {
     return (await this.productName.innerText()).trim();
   }
 
-  async addToWishlist() {
+  /**
+   * Clicks the heart until noon actually sends the save request. A click before hydration is
+   * dropped silently, and the heart is a toggle, so it must not be clicked again once one lands.
+   */
+  async toggleWishlist() {
     await expect(this.wishlistButton).toBeVisible();
-    await this.wishlistButton.click();
+    await expect(async () => {
+      const saveRequest = this.page
+        .waitForRequest(r => r.url().includes('/wishlist/items/') && r.method() === 'POST', { timeout: 5_000 })
+        .catch(() => null);
+      await this.wishlistButton.click({ timeout: 5_000 });
+      const request = await saveRequest;
+      if (!request) throw new Error('Heart click was not handled yet');
+      expect((await request.response())?.ok()).toBe(true);
+    }).toPass({ timeout: 45_000, intervals: [1_000, 2_000] });
   }
 
   async addToCart() {

@@ -14,8 +14,10 @@ built with **Playwright + TypeScript** using the Page Object Model.
 | 7 | Search using an Arabic search term | `tests/07-arabic-search.spec.ts` |
 | 8 | Open a social media link from the site footer | `tests/08-footer-social-link.spec.ts` |
 
-> **No purchase is ever made.** Flow 4 stops as soon as the dummy card (`4111 1111 1111 1111`)
-> is typed in. It never saves the card, confirms payment, or places an order.
+> **No purchase is ever made.** Flow 4 opens *Credit card → إضافة البطاقة*, types the dummy card
+> (`4111 1111 1111 1111`, 12/2030, CVV 123), unticks *تذكر هذه البطاقة* (remember this card), checks
+> that the form's **تأكيد** button became enabled, and stops. It never clicks **تأكيد**, never
+> saves the card, never confirms payment, and never places an order.
 
 ## Prerequisites
 
@@ -81,11 +83,15 @@ playwright.config.ts      Chrome, ar-EG locale, Cairo timezone, 1 worker, trace 
   to `.auth/user.json`, and every other flow starts from that signed-in session.
 - **Flows run serially** (`workers: 1`) because they share one account, wish list and cart.
 - **Selectors** use noon's own `data-qa` attributes and ARIA roles, not styling classes.
-- **Hydration-safe clicks.** noon server-renders its header and hydrates it seconds later,
+- **Hydration-safe clicks.** noon server-renders its pages and hydrates them seconds later,
   and clicks before that are silently dropped. `BasePage.clickUntilVisible` retries a click
-  until the panel it opens actually appears.
-- **Payment iframe.** Card fields are searched in the page and in every frame by standard
-  `autocomplete="cc-*"` attributes, so the flow works whether or not the provider uses an iframe.
+  until the panel it opens appears. The wishlist heart is a toggle, so it is retried only until
+  noon sends its save request, never past that.
+- **Products are opened by link**, not by clicking the card. A card click can land on the sticky
+  header's language toggle while the grid is still shifting. `BasePage.ensureArabic` also switches
+  back if noon ever serves `/egypt-en/`.
+- **Clear failures for account setup.** If noon asks for the address phone OTP, flows 4 and 6
+  fail with a message that says so, instead of timing out.
 
 ## Keeping the password private
 

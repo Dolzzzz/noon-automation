@@ -1,18 +1,19 @@
 import { test } from '../fixtures/test';
-import { uniqueProfileName } from '../test-data/data';
+import { nextProfileName } from '../test-data/data';
 
 test('05 · update the profile details', async ({ profilePage }) => {
-  const { firstName, lastName } = uniqueProfileName();
+  let name = { firstName: '', lastName: '' };
 
   await test.step('open the profile page', async () => {
     await profilePage.openProfile();
+    name = nextProfileName(await profilePage.firstNameInput.inputValue());
   });
 
-  await test.step(`change the name to "${firstName} ${lastName}" and save`, async () => {
-    await profilePage.updateName(firstName, lastName);
+  await test.step('change the first and last name and save', async () => {
+    await profilePage.updateName(name.firstName, name.lastName);
   });
 
   await test.step('new name is kept after a reload', async () => {
-    await profilePage.expectName(firstName, lastName);
+    await profilePage.expectName(name.firstName, name.lastName);
   });
 });

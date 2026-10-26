@@ -11,7 +11,8 @@ test('03 · remove that product from the wish list', async ({ wishlistPage }) =>
   });
 
   await test.step('remove the product added in flow 02', async () => {
-    await wishlistPage.removeItem(product!.sku);
+    const how = await wishlistPage.removeItem(product!.sku, product!.url);
+    test.info().annotations.push({ type: 'removed via', description: how });
   });
 
   await test.step('product is gone after a reload', async () => {

@@ -4,13 +4,27 @@ import { Header } from './Header';
 
 export class LocationPicker extends BasePage {
   private readonly header = new Header(this.page);
-  // The "deliver to" panel is a portal without a dialog role, so it is found by its title.
-  readonly panel = this.page.locator('#overlay-portal').filter({ hasText: 'تسليم إلى' });
-  readonly title = this.panel.getByText('تسليم إلى', { exact: true });
-  readonly savedAddressLines = this.panel.getByText(/محافظة/);
+  private readonly portal = this.page.locator('#overlay-portal');
+  readonly anyPanelTitle = this.portal.locator('[data-qa^="lbl_modalTitle_"]');
+  readonly deliverToTitle = this.portal.locator('[data-qa="lbl_modalTitle_تسليم إلى"]');
+  // Each saved address is a card whose <p> holds the address line.
+  readonly savedAddressLines = this.portal.locator('p').filter({ hasText: /محافظة/ });
 
+  /**
+   * Opens the "تسليم إلى" panel. Never clicks the header while a panel is already up: a click
+   * replayed after hydration can open it late, and a second click would land inside it.
+   */
   async openPicker() {
-    await this.clickUntilVisible(this.header.locationButton, this.title);
+    await expect(async () => {
+      if (await this.deliverToTitle.isVisible()) return;
+      if (await this.anyPanelTitle.isVisible()) {
+        // Some other panel (e.g. the add-address map) is up: start over from a clean page.
+        await this.page.reload({ waitUntil: 'domcontentloaded' });
+        await this.waitForAppReady();
+      }
+      await this.header.locationButton.click({ timeout: 5_000 });
+      await expect(this.deliverToTitle).toBeVisible({ timeout: 5_000 });
+    }).toPass({ timeout: 60_000, intervals: [1_000, 2_000, 3_000] });
   }
 
   async currentLocationText(): Promise<string> {

@@ -6,6 +6,7 @@ export class ProductPage extends BasePage {
   // The gallery heart: "wishlist" when signed out, "المفضلة" when signed in. It is the first such button on the page.
   readonly wishlistButton = this.page.getByRole('button', { name: /^(المفضلة|wishlist)$/ }).first();
   readonly addToCartButton = this.page.getByRole('button', { name: /أضف إلى العربة|أضف للعربة|Add to cart/i }).first();
+  readonly cartStepperMinus = this.page.getByRole('button', { name: 'remove-from-cart' }).first();
 
   async name(): Promise<string> {
     return (await this.productName.innerText()).trim();
@@ -28,8 +29,16 @@ export class ProductPage extends BasePage {
     }).toPass({ timeout: 45_000, intervals: [1_000, 2_000] });
   }
 
+  /**
+   * Adds the product to the cart. Once it is in the cart, noon swaps the button for a quantity
+   * stepper whose "−" (remove-from-cart) is enabled, so that is both the "already there" check
+   * and the proof the add worked.
+   */
   async addToCart() {
-    await expect(this.addToCartButton).toBeEnabled({ timeout: 60_000 });
-    await this.addToCartButton.click();
+    await expect(async () => {
+      if (await this.cartStepperMinus.isEnabled()) return;
+      await this.addToCartButton.click({ timeout: 5_000 });
+      await expect(this.cartStepperMinus).toBeEnabled({ timeout: 5_000 });
+    }).toPass({ timeout: 60_000, intervals: [1_000, 2_000] });
   }
 }

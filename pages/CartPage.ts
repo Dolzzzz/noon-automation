@@ -15,6 +15,10 @@ export class CartPage extends BasePage {
   async proceedToCheckout() {
     await expect(this.checkoutButton).toBeEnabled();
     await this.checkoutButton.click();
-    await this.page.waitForURL(/checkout/);
+    const phonePrompt = this.page.getByText('تأكيد رقم الموبايل');
+    await expect
+      .poll(async () => /\/checkout/.test(this.page.url()) || (await phonePrompt.isVisible()), { timeout: 60_000 })
+      .toBe(true);
+    await this.failIfPhoneVerificationAsked(1_000);
   }
 }

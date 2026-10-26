@@ -4,25 +4,35 @@ import { Header } from './Header';
 
 export class LocationPicker extends BasePage {
   private readonly header = new Header(this.page);
-  readonly panel = this.page.getByRole('dialog').first();
+  // The "deliver to" panel is a portal without a dialog role, so it is found by its title.
+  readonly panel = this.page.locator('#overlay-portal').filter({ hasText: 'تسليم إلى' });
+  readonly title = this.panel.getByText('تسليم إلى', { exact: true });
+  readonly savedAddressLines = this.panel.getByText(/محافظة/);
 
   async openPicker() {
-    await this.clickUntilVisible(this.header.locationButton, this.panel);
+    await this.clickUntilVisible(this.header.locationButton, this.title);
   }
 
   async currentLocationText(): Promise<string> {
     return (await this.header.locationButton.innerText()).replace(/\s+/g, ' ').trim();
   }
 
-  /** Picks the first saved address / area that is not the current one, and confirms it. */
-  async chooseDifferentLocation(current: string): Promise<string> {
-    const options = this.panel.locator('[role="radio"], label, li').filter({ hasNotText: current });
-    const choice = options.first();
-    const label = (await choice.innerText()).replace(/\s+/g, ' ').trim();
-    await choice.click();
-    const confirm = this.panel.getByRole('button', { name: /تأكيد|حفظ|توصيل هنا|Confirm|Save|Deliver here/i }).first();
-    if (await confirm.isVisible()) await confirm.click();
-    await expect(this.panel).toBeHidden();
-    return label;
+  /** "33, 44, group 111-b11, …" → "33, 44": enough to tell saved addresses apart in the header. */
+  static addressKey(line: string): string {
+    return line.split(',').slice(0, 2).map(s => s.trim()).join(', ');
+  }
+
+  /** Picks the first saved address that is not the current one; returns its key. */
+  async chooseDifferentAddress(current: string): Promise<string> {
+    await expect(this.savedAddressLines.first()).toBeVisible();
+    const lines = await this.savedAddressLines.allInnerTexts();
+    const index = lines.findIndex(line => !current.includes(LocationPicker.addressKey(line)));
+    if (index < 0) {
+      throw new Error('Flow 06 needs a second saved address on the account, different from the current one.');
+    }
+    const key = LocationPicker.addressKey(lines[index]);
+    await this.savedAddressLines.nth(index).click();
+    await this.failIfPhoneVerificationAsked();
+    return key;
   }
 }

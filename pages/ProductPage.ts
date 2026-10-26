@@ -3,7 +3,8 @@ import { BasePage } from './BasePage';
 
 export class ProductPage extends BasePage {
   readonly productName = this.page.locator('[data-qa="pdp-product-name"]');
-  readonly wishlistButton = this.page.getByRole('button', { name: 'wishlist' }).first();
+  // The gallery heart: "wishlist" when signed out, "المفضلة" when signed in. It is the first such button on the page.
+  readonly wishlistButton = this.page.getByRole('button', { name: /^(المفضلة|wishlist)$/ }).first();
   readonly addToCartButton = this.page.getByRole('button', { name: /أضف إلى العربة|أضف للعربة|Add to cart/i }).first();
 
   async name(): Promise<string> {

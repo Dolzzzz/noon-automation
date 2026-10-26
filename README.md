@@ -21,8 +21,11 @@ built with **Playwright + TypeScript** using the Page Object Model.
 
 - **Node.js 18+** (developed on Node 24)
 - **Google Chrome** installed. The tests run in real Chrome (`channel: 'chrome'`).
-- A **noon Egypt test account** that signs in with email + password, with at least one saved
-  delivery address (checkout needs one).
+- A **noon Egypt test account** that signs in with email + password, prepared once by hand:
+  - **Two saved delivery addresses.** Checkout needs one, and flow 6 switches between them.
+  - **The mobile number on each address verified.** noon asks for a WhatsApp code
+    ("تأكيد رقم الموبايل") the first time an address is used, and an automated run can't answer
+    that. Open the header's location picker, click **التحقق الآن** on each address, and enter the code.
 
 ## Setup
 
